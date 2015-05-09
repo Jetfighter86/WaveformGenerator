@@ -2,6 +2,7 @@ __author__ = 'Phillip'
 
 import math
 import logging
+import crcmod
 
 class PacketGenerator(object):
     HEADER="00000000A7"
@@ -23,6 +24,13 @@ class PacketGenerator(object):
 #       Strip hex '0x' in front if present
         if( string_hex_sequence[:2]=="0x"):
             string_hex_sequence = string_hex_sequence[2:]
+        self.logger.debug("Payload:0x%s"%string_hex_sequence)
+
+        # perform CRC
+
+        print(string_hex_sequence)
+
+
 
 
 if __name__ == "__main__":
