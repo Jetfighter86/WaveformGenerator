@@ -36,3 +36,5 @@ class PacketGenerator(object):
 if __name__ == "__main__":
     SEQUENCE="0x1234"
     a=PacketGenerator(SEQUENCE)
+
+# testing
