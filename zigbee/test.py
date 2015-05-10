@@ -2,14 +2,13 @@ __author__ = 'Phillip'
 
 import decimal
 
-def eng(num):
-    return decimal.Decimal(num).normalize().to_eng_string()
+class Song(object):
+	def __init__(self):
+		print 'hi'
+	def sing(self):
+		print 'im singing'
 
-test =[-78951,500,1e-3]
-for x in test:
-    print "%s: %s " %(x,eng(x))
-
-# hi
-print 'hi'
-def testing(num):
-    print "testing"
+if __name__ == "__main__":
+	print 'hi'
+	a = Song()
+	a.sing()
