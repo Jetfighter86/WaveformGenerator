@@ -22,8 +22,8 @@ spreading_sequence=dict({
      'F':'11001001011000000111011110111000'
 	}
 )
-a=list()
-for x in xrange(0,10,2):
-	a.append(x)
-
-print(spreading_sequence['0'][0])
+a = list()
+for i in range(10):
+    a.append(i)
+print a[-10:]
+print a[-1]
