@@ -3,6 +3,8 @@ __author__ = 'Phillip'
 import math
 import logging
 import crcmod
+import numpy
+import matplotlib.pylab as plt
 
 
 class PacketGenerator(object):
@@ -36,10 +38,13 @@ class PacketGenerator(object):
 
 		message_size=hex(len(string_hex_sequence)/2+2)[2:].upper()
 		message_size.zfill(2)
-		print message_size
 
 		self.logger.debug("Payload + CRC size in bytes:0x%s"%message_size)
-
+		self.message=self.flipBytes(self.HEADER+str(message_size)+string_hex_sequence.upper()+crc.upper())
+		self.nonFlipMessage= self.HEADER+str(message_size)+string_hex_sequence.upper()+crc.upper()
+		self.logger.info("Generated Packet:0x%s"%self.message)
+		print self.message
+		print self.nonFlipMessage
 
 	def GetCRC(self, string_hex_sequence):
 		"""
@@ -71,9 +76,66 @@ class PacketGenerator(object):
 			new_message.append(message[count])
 		return "".join(new_message)
 
+class WaveformGenerator2400MHZ(PacketGenerator):
+	"""
+	2400MHZ Waveform Generator: Creates a 2.4GHZ OQPSK Zigbee PHY packet for Agilent SGs
+	"""
+	spreading_sequence=dict({
+		 '0':'11011001110000110101001000101110',
+		 '1':'11101101100111000011010100100010',
+		 '2':'00101110110110011100001101010010',
+	     '3':'00100010111011011001110000110101',
+         '4':'01010010001011101101100111000011',
+         '5':'00110101001000101110110110011100',
+         '6':'11000011010100100010111011011001',
+         '7':'10011100001101010010001011101101',
+         '8':'10001100100101100000011101111011',
+         '9':'10111000110010010110000001110111',
+         'A':'01111011100011001001011000000111',
+         'B':'01110111101110001100100101100000',
+         'C':'00000111011110111000110010010110',
+         'D':'01100000011101111011100011001001',
+         'E':'10010110000001110111101110001100',
+         'F':'11001001011000000111011110111000'
+		}
+	)
+
+	def __init__(self,string_hex_sequence,delay_ms=0,CRC=None):
+		self.delay_ms= delay_ms
+		super(WaveformGenerator2400MHZ,self).__init__(string_hex_sequence,CRC)
+	def GetIQData(self,message):
+		"""
+		Waveform Generator for IQ purposes
+		:param message:
+		:return:
+		"""
+		y=self.OVER_SAMPLE/2
+		half_point=self.DAC_MIN
+		data_I=list()
+		data_Q=list()
+		norm_d=list()
+
+		for a in range(0,self.OVER_SAMPLE):
+			d=math.sin(a*self.PI/self.OVER_SAMPLE)
+			norm_d.append(math.floor(math.floor(d*(self.DAC_PEAK-1)+0.5)/self.BIT_REDUCTION))
+		for i in message:
+			for j in xrange(0,31,2):
+				try:
+					data_bit_I = self.spreading_sequence[i][j]
+				except KeyError:
+					self.logger.critical("key Error: %s"%i)
+		# x_axis=range(0,self.OVER_SAMPLE)
+		# self.Graph(x_axis,norm_d)
+
+	def Graph(self,x_axis,y_axis):
+		graph = plt.plot(x_axis, y_axis, '.', linewidth=2)
+		plt.show()
+
+
 if __name__ == "__main__":
 	SEQUENCE = "0x123456"
 	a = PacketGenerator(SEQUENCE)
+	b = WaveformGenerator2400MHZ(SEQUENCE).GetIQData(SEQUENCE)
 
 
 
