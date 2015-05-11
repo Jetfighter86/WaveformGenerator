@@ -122,8 +122,15 @@ class WaveformGenerator2400MHZ(PacketGenerator):
 			for j in xrange(0,31,2):
 				try:
 					data_bit_I = self.spreading_sequence[i][j]
+					data_bit_Q = self.spreading_sequence[i][j+1]
 				except KeyError:
 					self.logger.critical("key Error: %s"%i)
+				if(data_bit_I=='1'):
+					coef=1
+				else:
+					coef=-1
+				for k in range(0,self.OVER_SAMPLE):
+					data_I.append((norm_d[k]*coef)+half_point)
 		# x_axis=range(0,self.OVER_SAMPLE)
 		# self.Graph(x_axis,norm_d)
 
