@@ -1,8 +1,15 @@
 __author__ = 'Phillip'
 
-import urllib2
+import urllib2, httplib
+import requests
+# addr = 'http://localhost:19501/sniffers/COM13'
+# req = urllib2.Request(addr)
+# res = urllib2.urlopen(req)
+# print res.read()
+# httplib.HTTPConnection.request('PUT',addr,'action=start',"Sniffer")
 
-req = urllib2.Request('http://www.voidspace.org.uk')
-response =urllib2.urlopen(req)
-the_page = response.read()
-print the_page
+
+# using requests
+payload = {'action':'stop'}
+r=requests.put('http://localhost:19501/sniffers/COM13',data=payload)
+print r.status_code
