@@ -9,7 +9,7 @@ import matplotlib.pylab as plt
 
 class PacketGenerator(object):
     HEADER = "00000000A7"
-    OVER_SAMPLE = 20
+    OVER_SAMPLE = 80
     PI = 3.141593
     DAC_PEAK = pow(2, 14)
     DAC_MIN = 0
@@ -100,13 +100,21 @@ class WaveformGenerator2400MHZ(PacketGenerator):
     'C': '00000111011110111000110010010110',
     'D': '01100000011101111011100011001001',
     'E': '10010110000001110111101110001100',
-    'F': '11001001011000000111011110111000'
+    'F': '11001001011000000111011110111000',
+    'z': '00000010100111001011101110000000'
     }
     )
+    DATA_I=list()
+    DATA_Q=list()
+    COMBINED_IQ=list()
 
     def __init__(self, string_hex_sequence, delay_ms=0, CRC=None):
         self.delay_ms = delay_ms
-        super(WaveformGenerator2400MHZ, self).__init__(string_hex_sequence, CRC)
+        # super(WaveformGenerator2400MHZ, self).__init__(string_hex_sequence, CRC)
+        DATA_Q= self.GetIQData(string_hex_sequence)
+        DATA_I=self.GetIQData(string_hex_sequence)
+        COMBINED_IQ=self.GetIQData(string_hex_sequence)
+
 
     def GetIQData(self, message):
         """
@@ -116,7 +124,6 @@ class WaveformGenerator2400MHZ(PacketGenerator):
         """
         if(message[:2]=='0x'):
             message=message[2:]
-        print message
         y = self.OVER_SAMPLE / 2
         half_point = self.DAC_MIN
         data_I = list()
@@ -147,29 +154,71 @@ class WaveformGenerator2400MHZ(PacketGenerator):
                     data_Q.append((norm_d[k]*coef)+half_point)
                 y=+self.OVER_SAMPLE
         y = self.OVER_SAMPLE/2
-        data_Q=data_Q[-y:]+data_Q[:-y]
-        print 'message',i
-        self.Graph(range(0,len(data_Q)), data_Q)
+        self.COMBINED_IQ = [x+y for x,y in zip(data_Q,data_I)]
+        self.DATA_I = data_I
+        self.DATA_Q = data_Q
+        # self.Graph(range(0,len(dataTotal)), dataTotal,range(len(data_Q)),data_Q)
+
+    def OQPSK(self,data_I,data_Q,period=None):
+        period = self.OVER_SAMPLE
+        I = data_I
+        Q = data_Q
+        ILength = len(I)
+        QLength = len(Q)
+        CombineList = list()
+        for i in range(ILength):
+            if(i < period/2):
+                CombineList.append(I[i])
+            else:
+                CombineList.append((I[i]+ Q[i-period/2]))
+        return CombineList
 
 
 
-
-
-    def Graph(self, x_axis, y_axis,x_axis2=None,y_axis2=None):
+    def GetXAxis(self,list):
         try:
-            if(x_axis2==None and y_axis2==None):
+            return range(0,len(list))
+        except Exception:
+            logging.critical("GetXAxis: %s" % Exception.message)
+
+    def Graph(self, x_axis, y_axis, x_axis2=None, y_axis2=None, x_axis3=None, y_axis3=None):
+        try:
+            if(x_axis2==None and y_axis2==None and x_axis3==None and y_axis3==None):
                 graph = plt.plot(x_axis, y_axis, 'r.', linewidth=2)
                 plt.show()
+            elif(x_axis3==None and y_axis3==None):
+                plt.figure(1)
+                plt.subplot(211)
+                plt.plot(x_axis, y_axis, 'g.', linewidth=2)
+                plt.subplot(212)
+                plt.plot(x_axis2,y_axis2,'r.')
+                plt.show()
+
             else:
-                graph = plt.plot(x_axis, y_axis, 'r.', x_axis2, y_axis2, 'b^', linewidth=2)
+                plt.figure(1)
+                plt.subplot(3,1,1)
+                plt.plot(x_axis, y_axis, 'g.', linewidth=2)
+                plt.subplot(3,1,2)
+                plt.plot(x_axis2,y_axis2,'r.')
+                plt.subplot(3,1,3)
+                plt.figure(2)
+                plt.plot(x_axis3,y_axis3,'b.')
+                for i in range(0,len(x_axis),self.OVER_SAMPLE+ self.OVER_SAMPLE/2):
+                    plt.axvline(x=i+self.OVER_SAMPLE/2)
                 plt.show()
         except ValueError:
             self.logger.critical("ValueError %s"% ValueError.message)
 
 if __name__ == "__main__":
-    SEQUENCE = "0x00"
+    SEQUENCE = "0xz"
     # a = PacketGenerator(SEQUENCE)
-    b = WaveformGenerator2400MHZ(SEQUENCE).GetIQData(SEQUENCE)
+    # b = WaveformGenerator2400MHZ(SEQUENCE).GetIQData(SEQUENCE)
+    b= WaveformGenerator2400MHZ(SEQUENCE)
+    c = b.OQPSK(b.DATA_I,b.DATA_Q)
+    print b.DATA_I
+    print b.DATA_Q
+    print c
+    b.Graph(b.GetXAxis(b.DATA_I), b.DATA_I,b.GetXAxis(b.DATA_Q),b.DATA_Q,b.GetXAxis(b.COMBINED_IQ),b.COMBINED_IQ)
 
 
 
