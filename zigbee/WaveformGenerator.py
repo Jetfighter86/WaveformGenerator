@@ -9,7 +9,7 @@ import matplotlib.pylab as plt
 
 class PacketGenerator(object):
     HEADER = "00000000A7"
-    OVER_SAMPLE = 80
+    OVER_SAMPLE = 50
     PI = 3.141593
     DAC_PEAK = pow(2, 14)
     DAC_MIN = 0
@@ -210,7 +210,7 @@ class WaveformGenerator2400MHZ(PacketGenerator):
             self.logger.critical("ValueError %s"% ValueError.message)
 
 if __name__ == "__main__":
-    SEQUENCE = "0xz"
+    SEQUENCE = "0xB"
     # a = PacketGenerator(SEQUENCE)
     # b = WaveformGenerator2400MHZ(SEQUENCE).GetIQData(SEQUENCE)
     b= WaveformGenerator2400MHZ(SEQUENCE)
