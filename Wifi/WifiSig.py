@@ -2,13 +2,16 @@ __author__ = 'Phillip'
 
 import numpy as np,matplotlib.pyplot as plt
 from pylab import figure
-import math
+import math,scipy
+
 from zigbee.WaveformGenerator import WaveformGenerator2400MHZ as wave
 from scipy.fftpack import fft
 import matplotlib.pyplot as plt
 plt.figure(1)
 def findingXValue(desiredValue,list):
-
+    for x in list:
+        if x > desiredValue:
+            return list.index(x)
 def graph(x_domain, y_domain):
     plt.plot(x_domain,y_domain)
     plt.grid()
@@ -30,16 +33,33 @@ def test1():
     N = 1000
     T = 1.0 / 800
     x = np.linspace(0.0, N*T, N )
-    freq = 50
+    xlist = list()
+    for i in x:
+        xlist.append(i)
+    xlist= ([0]*4) + x
+    freq = 1
     y = np.sin(2.0*np.pi*x*freq)
     yf = fft(y)
     xf = np.linspace(0,1/(2*T), N/2)
     for x in yf:
         FFTList.append(abs(x))
-    print FFTList[48]
+    print findingXValue(100,FFTList)
+    print FFTList[61]
     # print xf
     # graph(np.linspace(0,T, N), y )
     # graph(xf[:N/2],FFTList[:N/2])
+def arrayToList(lst):
+    A = list()
+    for x in lst:
+        A.append(x)
+    return A
+def scipyTest():
+    t = np.arange(256)
+    sp = np.fft.fft(np.sin(t))
+    freq = np.fft.fftfreq(t.shape[-1])
+    plt.plot(freq, sp.real, freq, sp.imag)
+    # plt.show()
+    print t.shape(-1)
 
 
-test1()
+scipyTest()

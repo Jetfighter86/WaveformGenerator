@@ -210,7 +210,7 @@ class WaveformGenerator2400MHZ(PacketGenerator):
             self.logger.critical("ValueError %s"% ValueError.message)
 
 if __name__ == "__main__":
-    SEQUENCE = "0xB"
+    SEQUENCE = "0x0"
     # a = PacketGenerator(SEQUENCE)
     # b = WaveformGenerator2400MHZ(SEQUENCE).GetIQData(SEQUENCE)
     b= WaveformGenerator2400MHZ(SEQUENCE)
