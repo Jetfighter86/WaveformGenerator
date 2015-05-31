@@ -179,7 +179,7 @@ class VLCException(Exception):
 
 try:
     _Ints = (int, long)
-except NameError:  # no long in Python 3+
+except NameError:  # no long in Python 3
     _Ints = int
 _Seqs = (list, tuple)
 
@@ -7304,15 +7304,15 @@ if __name__ == '__main__':
         import termios
         import tty
 
-        def getch():  # getchar(), getc(stdin)  #PYCHOK flake
-            fd = sys.stdin.fileno()
-            old = termios.tcgetattr(fd)
-            try:
-                tty.setraw(fd)
-                ch = sys.stdin.read(1)
-            finally:
-                termios.tcsetattr(fd, termios.TCSADRAIN, old)
-            return ch
+        # def getch():  # getchar(), getc(stdin)  #PYCHOK flake
+        #     fd = sys.stdin.fileno()
+        #     old = termios.tcgetattr(fd)
+        #     try:
+        #         tty.setraw(fd)
+        #         ch = sys.stdin.read(1)
+        #     finally:
+        #         termios.tcsetattr(fd, termios.TCSADRAIN, old)
+        #     return ch
 
     def end_callback(event):
         print('End of media stream (event %s)' % event.type)
@@ -7339,8 +7339,8 @@ if __name__ == '__main__':
             print('Error: %s' % sys.exc_info()[1])
 
     if sys.argv[1:] and sys.argv[1] not in ('-h', '--help'):
-
         movie = os.path.expanduser(sys.argv[1])
+        print movie
         if not os.access(movie, os.R_OK):
             print('Error: %s file not readable' % movie)
             sys.exit(1)
@@ -7379,6 +7379,11 @@ if __name__ == '__main__':
         event_manager = player.event_manager()
         event_manager.event_attach(EventType.MediaPlayerEndReached, end_callback)
         event_manager.event_attach(EventType.MediaPlayerPositionChanged, pos_callback, player)
+        # Some event manager examples.  Note, the callback can be any Python
+        # callable and does not need to be decorated.  Optionally, specify
+        # any number of positional and/or keyword arguments to be passed
+        # to the callback (in addition to the first one, an Event instance).
+        event_manager = player.event_manager()
 
         def mspf():
             """Milliseconds per frame."""

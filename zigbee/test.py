@@ -1,9 +1,16 @@
 __author__ = 'Phillip'
 
-import decimal
-A1=list()
-B1=list()
-C1=list()
 
-A1 = [1,2,3,4,5]
-print A1.index(5)
+try:
+    from msvcrt import getche
+    import sys
+except ImportError:
+    import termios
+    import tty
+
+while True:
+    k = getche()
+    if k == 'q':
+        sys.exit()
+    if k == 'm':
+        print 'hi'
