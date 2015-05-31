@@ -12,7 +12,7 @@ class Player(wx.Frame):
 
     def __init__(self, title):
         wx.Frame.__init__(self, None, -1, title,
-                          pos=wx.DefaultPosition, size=(100, 300))
+                          pos=wx.DefaultPosition, size=(450, 300))
 
         # Menu Bar
         # File Menu
@@ -34,8 +34,21 @@ class Player(wx.Frame):
         # Search  Panels
         searchpanel = wx.Panel(self,-1)
         searchlabel = wx.Panel(self,-1)
+        queueResultPanel = wx.Panel(self,-1)
+        resultbox = wx.BoxSizer(wx.HORIZONTAL)
+        self.queueResultPanel = wx.ListBox(queueResultPanel, -1, size=(350,300))
+        resultbox.Add(self.queueResultPanel, 1, wx.EXPAND | wx.ALL, 20)
+        queueBtnPanel = wx.Panel(queueResultPanel, -1)
+
+
         self.searchlabel = wx.StaticText(searchlabel, -1, "Search Artist/Song")
-        self.searchfield = wx.TextCtrl(searchpanel,-1, size=(140,-1))
+        self.searchfield = wx.TextCtrl(searchpanel,-1, size=(200,-1))
+        # queue panel buttons
+        nextbtn = wx.Button(queueResultPanel, wx.ID_ANY, pos=(50,50),label ='NEXT', size=(70,30))
+
+        # Directory Display Panel
+        dirdisplaypanel = wx.Panel(self, -1)
+        self.dirdisplaypanel = wx.StaticText(dirdisplaypanel,-1, "Dir")
 
         # The second panel holds controls
         ctrlpanel = wx.Panel(self, -1)
@@ -58,6 +71,15 @@ class Player(wx.Frame):
         ctrlbox = wx.BoxSizer(wx.VERTICAL)
         box1 = wx.BoxSizer(wx.HORIZONTAL)
         box2 = wx.BoxSizer(wx.HORIZONTAL)
+        box3 = wx.BoxSizer(wx.VERTICAL)
+        box4 = wx.BoxSizer(wx.VERTICAL)
+        btnbox = wx.BoxSizer(wx.VERTICAL)
+        # btnbox for buttons
+        btnbox.Add((1,30))
+        btnbox.Add(nextbtn)
+        # box3 for Search Field
+        box3.Add(dirdisplaypanel)
+        box3.Add(searchlabel)
         # box1 contains the timeslider
         box1.Add(self.timeslider, 1)
         # box2 contains some buttons and the volume controls
@@ -71,13 +93,21 @@ class Player(wx.Frame):
         ctrlbox.Add(box1, flag=wx.EXPAND | wx.BOTTOM, border=10)
         ctrlbox.Add(box2, 1, wx.EXPAND)
         ctrlpanel.SetSizer(ctrlbox)
+        # Search Panel
+        box4.Add(queueResultPanel,0, wx.Bottom | wx.ALL)
+
         # Put everything togheter
+        queueBtnPanel.SetSizer(btnbox)
+        resultbox.Add(queueBtnPanel, .6, wx.EXPAND | wx.RIGHT)
+        queueResultPanel.SetSizer(resultbox)
         sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(dirdisplaypanel,  flag=wx.EXPAND | wx.LEFT)
         sizer.Add(searchlabel, flag=wx.EXPAND | wx.LEFT)
         sizer.Add(searchpanel,flag=wx.EXPAND | wx.CENTER | wx.TOP)
         sizer.Add(ctrlpanel, flag=wx.EXPAND | wx.BOTTOM | wx.TOP)
-        self.SetSizer(sizer)
-        self.SetMinSize((350, 300))
+        sizer.Add(queueResultPanel, flag=wx.EXPAND | wx.BOTTOM | wx.TOP)
+        self.SetSizerAndFit(sizer)
+        self.SetMinSize((450, 400))
 
         # finally create the timer, which updates the timeslider
         self.timer = wx.Timer(self)
