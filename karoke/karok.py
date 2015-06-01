@@ -38,6 +38,12 @@ class Player(wx.Frame):
         self.searchlabel = wx.StaticText(searchlabel, -1, "Search Artist/Song")
         self.searchfield = wx.TextCtrl(searchpanel, -1, size=(140, -1))
 
+        # Creating a display for search Results
+        searchdispanel = wx.Panel(self, -1)
+        searchdispanelbox = wx.BoxSizer(wx.HORIZONTAL)
+        self.searchdispanelbox = wx.ListBox(searchdispanel, -1)
+
+
         # The second panel holds controls
         ctrlpanel = wx.Panel(self, -1)
         self.timeslider = wx.Slider(ctrlpanel, -1, 0, 0, 1000)
@@ -91,11 +97,13 @@ class Player(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.OnToggleVolume, volume)
         self.Bind(wx.EVT_BUTTON, self.VocalToggle, vocalbtn)
         self.Bind(wx.EVT_SLIDER, self.OnSetVolume, self.volslider)
+        self.Bind(wx.EVT_TEXT, self.Search, self.searchfield)
 
         # Put everything togheter
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(searchlabel, flag=wx.EXPAND | wx.LEFT)
         sizer.Add(searchpanel, flag=wx.EXPAND | wx.CENTER | wx.TOP)
+        sizer.Add(searchdispanel, flag=wx.EXPAND | wx.LEFT)
         sizer.Add(ctrlpanel, flag=wx.EXPAND | wx.BOTTOM | wx.TOP)
         sizer.Add(qpanel, flag=wx.EXPAND | wx.BOTTOM)
         self.SetSizer(sizer)
@@ -108,7 +116,6 @@ class Player(wx.Frame):
         # VLC player controls
         self.Instance = vlc.Instance("--sub-source marq")
         self.player = self.Instance.media_player_new()
-
     def OnAbout(self, evt):
         """
         Show about menu in a separate box
@@ -117,18 +124,15 @@ class Player(wx.Frame):
         """
         message = """ My First Karaoke program. To my beloved dad!!!! """
         wx.MessageBox(message, 'Info')
-
-
     def OnExit(self, evt):
         """Closes the window.
         """
         self.Close()
-
     def OnOpen(self, evt):
         """Pop up a new dialow window to choose a file, then play the selected file.
         """
         # if a file is already running, then stop it.
-        self.OnStop(None)
+        # self.OnStop(None)
 
         # Create a file dialog opened in the current home directory, where
         # you can display all kind of files, having as title "Choose a file".
@@ -146,7 +150,7 @@ class Player(wx.Frame):
             # filename
             if title == -1:
                 title = filename
-            self.SetTitle("%s - PhillipVLCplayer" % title)
+            self.SetTitle("%s - PhillipKARAOKplayer" % title)
 
             # set the window id where to render VLC's video output
             # self.player.set_xwindow(self.videopanel.getHandle())
@@ -159,8 +163,6 @@ class Player(wx.Frame):
 
         # finally destroy the dialog
         dlg.Destroy()
-
-
     def OnPlay(self, evt):
         """Toggle the status to Play/Pause.
         If no file is loaded, open the dialog window.
@@ -176,12 +178,10 @@ class Player(wx.Frame):
                 self.player.play()
             else:
                 self.timer.Start()
-
     def OnPause(self, evt):
         """Pause the player.
         """
         self.player.pause()
-
     def OnStop(self, evt):
         """Stop the player.
         """
@@ -189,7 +189,6 @@ class Player(wx.Frame):
         # reset the time slider
         self.timeslider.SetValue(0)
         self.timer.Stop()
-
     def VocalToggle(self,evt):
         """
         toggle vocal on/off
@@ -207,7 +206,6 @@ class Player(wx.Frame):
             self.player.audio_set_channel(3)
         else:
             self.player.audio_set_channel(1)
-
     def OnTimer(self, evt):
         """Update the time slider according to the current movie time.
         """
@@ -219,7 +217,6 @@ class Player(wx.Frame):
         # update the time on the slider
         time = self.player.get_time()
         self.timeslider.SetValue(time)
-
     def OnToggleVolume(self, evt):
         """Mute/Unmute according to the audio button.
         """
@@ -230,7 +227,6 @@ class Player(wx.Frame):
         # since vlc volume range is in [0, 200],
         # and our volume slider has range [0, 100], just divide by 2.
         self.volslider.SetValue(self.player.audio_get_volume() / 2)
-
     def OnSetVolume(self, evt):
         """Set the volume according to the volume sider.
         """
@@ -238,6 +234,17 @@ class Player(wx.Frame):
         # vlc.MediaPlayer.audio_set_volume returns 0 if success, -1 otherwise
         if self.player.audio_set_volume(volume) == -1:
             self.errorDialog("Failed to set volume")
+    def Queuelist(self,evt):
+        pass
+
+    def Search(self,evt):
+        dir = "C:/Users/Phillip/PycharmProjects/WaveformGenerator/karoke/listsong.txt"
+        print self.searchfield.GetValue()
+        value = self.searchfield.GetValue()
+        self.searchdispanelbox.Append(value)
+        pass
+
+
 
     def errorDialog(self, errormessage):
         """Display a simple error dialog.
