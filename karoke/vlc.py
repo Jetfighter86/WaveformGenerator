@@ -7214,7 +7214,7 @@ def libvlc_vlm_get_event_manager(p_instance):
 #  libvlc_get_compiler
 #  libvlc_get_version
 #  libvlc_log_get_context
-#  libvlc_log_get_object
+#  libvlc_log_get_objectz
 #  libvlc_media_get_codec_description
 #  libvlc_media_tracks_release
 #  libvlc_module_description_list_release
@@ -7326,7 +7326,7 @@ if __name__ == '__main__':
                                                           event.u.new_position * 100,
                                                           player.get_position() * 100))
             sys.stdout.flush()
-
+    #
     def print_version():
         """Print libvlc version"""
         try:
