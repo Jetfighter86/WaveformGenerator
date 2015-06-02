@@ -20,7 +20,8 @@ class Player(wx.Frame):
     ID_NEXT = 1 # Next button
     ID_END = 2 # End button
     ID_VOCAL = 3 # Vocal Button
-    directoryKaraok = "C:/Users/Phillip/PycharmProjects/WaveformGenerator/karoke/ex02.txt"
+    directoryKaraok = "C:\Users\Phillip\PycharmProjects\WaveformGenerator\karoke\ex02.txt"
+    MEDIADIRECTORY = ""
 
 
     def __init__(self, title):
@@ -151,15 +152,26 @@ class Player(wx.Frame):
             self.TITLELIST.append(self.SONGLIST[a][4])
             self.ARTISTLIST.append(self.SONGLIST[a][4])
             self.DISPLAYLIST.append((a,self.CODELIST[a], self.TITLELIST[a], self.ARTISTLIST[a]))
-        #Build a searchdirectory
+        #Initialize otehr fields
+        self.initialize(None)
         self.SearchDirectory(None)
-
+        print 'direct: ', self.MEDIADIRECTORY
+    def initialize(self,evt):
+        self.MEDIADIRECTORY = self.GetLogData("MEDIADIRECTORY")
+    def GetLogData(self,Parameter):
+        target = open(os.path.join(os.getcwd(),'CONFIG.txt'))
+        matchstr = Parameter + ".*"
+        for param in target.readlines():
+            if re.match(matchstr,param):
+                ind = (str(param).index('=') +1)
+                return str(param)[ind:].strip()
     def OnLocation(self,evt):
         dlg = wx.FileDialog(self, "Choose a file", user.home, "","*.*", wx.OPEN)
         if dlg.ShowModal() == wx.ID_OK:
             self.directoryKaraok = dlg.GetDirectory()
             filename = dlg.GetFilename()
         print self.directoryKaraok
+        self.SearchDirectory(None)
     def Next(self,evt):
         self.OnStop(None)
         if len(self.QUEUELIST) >0:
@@ -167,6 +179,7 @@ class Player(wx.Frame):
         else:
             wx.MessageBox("Nothing Next On Queue",'Info')
         self.DisplayQueuelist(None)
+        self.OnPlay(None)
     def OnAbout(self, evt):
         """
         Show about menu in a separate box
@@ -221,13 +234,16 @@ class Player(wx.Frame):
         # self.Media = self.Instance.media_new(unicode(os.path.join(dirname, filename)))
         # self.player.set_media(self.Media)
         # check if there is a file to play, otherwise open a
+        print 'play'
         path = ""
+        print 'length',len(self.DIRECTORYLIST)
         if len(self.QUEUELIST) == 0:
             wx.MessageBox("Nothing in QueueList", 'Info')
         else:
             for i in range(len(self.DIRECTORYLIST)-1):
-                if self.DIRECTORYLIST[i][0] == self.QUEUELIST[0]:
+                if str(self.DIRECTORYLIST[i][0]).strip() == self.QUEUELIST[0]:
                     path = self.DIRECTORYLIST[i][1]
+                    print path
             self.Media = self.Instance.media_new(path)
             self.player.set_media(self.Media)
         # elif len(self.QUEUELIST > 0):
@@ -299,7 +315,6 @@ class Player(wx.Frame):
         if self.player.audio_set_volume(volume) == -1:
             self.errorDialog("Failed to set volume")
     def DisplayQueuelist(self,evt):
-        print 'hi'
         self.qhbox.Clear()
         length = 5
         if len(self.QUEUELIST) < 10:
@@ -311,7 +326,6 @@ class Player(wx.Frame):
             for i in range(length):
                 self.qhbox.Append(self.QUEUELIST[i])
     def Add2Queuelist(self,evt):
-        print 'add'
         try:
             item = self.searchdispanelbox.GetString(self.searchdispanelbox.GetSelection())
             self.QUEUELIST.append(item)
@@ -320,7 +334,6 @@ class Player(wx.Frame):
                 self.QUEUELIST.pop(0)
         except Exception:
             return Exception.message
-        print 'displ'
         self.DisplayQueuelist(None)
     def Search(self, evt):
         """
@@ -356,7 +369,8 @@ class Player(wx.Frame):
     def searchListBox(self,evt):
         print self.searchdispanelbox.GetString(self.searchdispanelbox.GetSelection())
     def SearchDirectory(self,evt):
-        for root, dirs, files in os.walk(self.directoryKaraok):
+        print 'search directory'
+        for root, dirs, files in os.walk(self.MEDIADIRECTORY):
             for file in files:
                 if file.endswith(".avi"):
                      self.DIRECTORYLIST.append((file.rstrip(".avi"),os.path.join(root,file)))
